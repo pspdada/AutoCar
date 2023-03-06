@@ -2,14 +2,14 @@
 #include "AutoCar_def.h"
 
 // 根据红外传感器的输出来决定小车运动模式
-run_mode runMode(void) {
+uint8_t runMode(void) {
   while (true) {
-    updateCTRTstate();  // 更新CTRT数据
-
+    updateCTRTstate();   // 更新CTRT数据
     if (isCross == 0) {  // 根据红外传感器的输出来决定运动模式
       if (isAllLow())    // 未检测到黑线时，进入记忆模式
       {
         return STRAIGHT_ON;  // 调试用
+        // return REVERSE;  // 调试用
         // isCross = 1;
       } else if (isAllHigh())  // 全为黑线时停车
       {
@@ -139,24 +139,33 @@ void motorControl(void) {
 // 根据小车两轮的目标速度来输出PWM波控制小车
 void carRun(void) {
   Output_L = pidController_L(TARGET_V_LEFT, cur_V_LEFT);
-  if (Output_L > 0) {
-    digitalWrite(IN_L1, LOW);
-    digitalWrite(IN_L2, HIGH);
-    analogWrite(PWM_LEFT, Output_L);
-  } else {
+  if (TARGET_V_LEFT == 0) {
     digitalWrite(IN_L1, HIGH);
-    digitalWrite(IN_L2, LOW);
-    analogWrite(PWM_LEFT, abs(Output_L));
-  }
-
-  Output_R = pidController_R(TARGET_V_RIGHT, cur_V_RIGHT);
-  if (Output_R > 0) {
-    digitalWrite(IN_R1, LOW);
-    digitalWrite(IN_R2, HIGH);
-    analogWrite(PWM_RIGHT, Output_R);
+    digitalWrite(IN_L2, HIGH);    
   } else {
+    if (Output_L > 0) {
+      digitalWrite(IN_L1, LOW);
+      digitalWrite(IN_L2, HIGH);
+      analogWrite(PWM_LEFT, Output_L);
+    } else {
+      digitalWrite(IN_L1, HIGH);
+      digitalWrite(IN_L2, LOW);
+      analogWrite(PWM_LEFT, abs(Output_L));
+    }
+  }
+  Output_R = pidController_R(TARGET_V_RIGHT, cur_V_RIGHT);
+  if (TARGET_V_RIGHT == 0) {
     digitalWrite(IN_R1, HIGH);
-    digitalWrite(IN_R2, LOW);
-    analogWrite(PWM_RIGHT, abs(Output_R));
+    digitalWrite(IN_R2, HIGH);
+  } else {
+    if (Output_R > 0) {
+      digitalWrite(IN_R1, LOW);
+      digitalWrite(IN_R2, HIGH);
+      analogWrite(PWM_RIGHT, Output_R);
+    } else {
+      digitalWrite(IN_R1, HIGH);
+      digitalWrite(IN_R2, LOW);
+      analogWrite(PWM_RIGHT, abs(Output_R));
+    }
   }
 }
