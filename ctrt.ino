@@ -1,12 +1,12 @@
-
+#include "ctrt.h"
 //---------------------------------------红外模块----------------------------------------------*/
 
 // 更新红外模块的记忆数组,数组CTRTstate[i][j]，i表示模块代号，j表示第i个模块的第j个记忆
 void updateCTRTstate(void) {
 
-  // 越界则只更新第一、二层的数据，否则更新三层数据
+  // 越界则只更新第一、二层的数据，否则更新一、二、三层数据
   for (unsigned char i = MEMORY_CNT - isCross - 1; i > 0; --i) {
-    for (unsigned char j = 0; j < CTRT_CNT - 1; ++j) {
+    for (unsigned char j = 0; j < CTRT_CNT; ++j) {
       CTRTstate[j][i] = CTRTstate[j][i - 1];
     }
   }
