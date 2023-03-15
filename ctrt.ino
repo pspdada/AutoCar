@@ -19,6 +19,8 @@ void updateCTRTstate(void) {
   CTRTstate[4][0] = digitalRead(CTRT_PIN_R1);
   CTRTstate[5][0] = digitalRead(CTRT_PIN_R2);
   CTRTstate[6][0] = digitalRead(CTRT_PIN_R3);
+
+
 }
 
 bool isAllLow(void) {

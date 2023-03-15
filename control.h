@@ -2,9 +2,11 @@
 #define _CONTROL_H
 
 #include "AutoCar_def.h"
+#include "ctrt.h"
 
 void motorControl(void);
 uint8_t runMode(void);
 void carRun(void);
-
+void turnAroundandDrop();
+void buttonPress();
 #endif
