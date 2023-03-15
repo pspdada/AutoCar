@@ -5,7 +5,7 @@
 #include <Servo.h>     // 调用Servo.h库
 #include <math.h>
 
-#define base_V 15.0  // 基础速度，实力的象征
+#define base_V 20.0  // 基础速度，实力的象征
 #define PERIOD 10    // 周期
 #define PI 3.14159
 

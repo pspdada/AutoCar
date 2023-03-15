@@ -8,14 +8,14 @@ uint8_t runMode(void) {
   */
   if (isFinish == 1) {  // 到达终点时
     time_now_f = millis();
-
+    // 记录：15速时 200 1000 1100 1600 1700
     if (time_now_f - time_base_f <= 200) {
       return _STOP;
-    } else if (time_now_f - time_base_f <= 1000) {
+    } else if (time_now_f - time_base_f <= 800) {
       return CIRCLE;
-    } else if (time_now_f - time_base_f <= 1100) {
+    } else if (time_now_f - time_base_f <= 900) {
       return _STOP;
-    } else if (time_now_f - time_base_f <= 1600) {
+    } else if (time_now_f - time_base_f <= 1500) {
       return REVERSE;
     } else if (time_now_f - time_base_f <= 1700) {
       return _STOP;
@@ -25,13 +25,14 @@ uint8_t runMode(void) {
   }
   if (isBarrier == 1) {  // 发现障碍物时，优先躲避障碍物
     time_now_a = millis();
-    if (time_now_a - time_base_a <= 1000) {
+    // 记录：15速时 1000 1500 2000 2200
+    if (time_now_a - time_base_a <= 600) {
       return TURN_LEFT_MID;
-    } else if (time_now_a - time_base_a <= 1500) {
+    } else if (time_now_a - time_base_a <= 1000) {
       return TURN_RIGHT_MID;
-    } else if (time_now_a - time_base_a <= 2000) {
+    } else if (time_now_a - time_base_a <= 1500) {
       return STRAIGHT_ON;
-    } else if (time_now_a - time_base_a <= 2200) {
+    } else if (time_now_a - time_base_a <= 1700) {
       return TURN_RIGHT_MID;
     } else {
       isBarrier = 0;
@@ -80,11 +81,26 @@ uint8_t runMode(void) {
       }
     }
     if (isCross == 1) {  // 记忆模式
-      if (!isAllLow())   // 再次检测到黑线，则退出记忆模式
+      /*if (!isAllLow())   // 再次检测到黑线，则退出记忆模式
       {
         isCross = 0;
         return SLOW_ON;
-      } else if (CTRTstate[0][1] == HIGH || CTRTstate[0][2] == HIGH)  // 直角左转
+      } else
+      */
+      if (quarter_turn == QT_L && CTRTstate[0][0] == HIGH) {
+        isCross = 0;
+        quarter_turn = NOPE;
+        return TURN_LEFT_HIGH;
+      } else if (quarter_turn == QT_R && CTRTstate[6][0] == HIGH) {
+        isCross = 0;
+        quarter_turn = NOPE;
+        return TURN_RIGHT_HIGH;
+      } else if ((quarter_turn == NOPE) && (!isAllLow())) {
+        isCross = 0;
+        quarter_turn = NOPE;
+        return SLOW_ON;
+      }
+      if (CTRTstate[0][1] == HIGH || CTRTstate[0][2] == HIGH)  // 直角左转
       {
         quarter_turn = QT_L;
         return TURN_LEFT_HIGH;
@@ -95,18 +111,22 @@ uint8_t runMode(void) {
       } else if (CTRTstate[1][1] == HIGH || CTRTstate[1][2] == HIGH)  // 中左转
       {
         //return TURN_LEFT_MID;
+        quarter_turn = NOPE;
         return TURN_LEFT_HIGH;
       } else if (CTRTstate[5][1] == HIGH || CTRTstate[5][2] == HIGH)  // 中右转
       {
         //return TURN_RIGHT_MID;
+        quarter_turn = NOPE;
         return TURN_RIGHT_HIGH;
       } else if (CTRTstate[2][1] == HIGH || CTRTstate[2][2] == HIGH)  // 低左转
       {
         //return TURN_LEFT_LOW;
+        quarter_turn = NOPE;
         return TURN_LEFT_HIGH;
       } else if (CTRTstate[4][1] == HIGH || CTRTstate[4][2] == HIGH)  // 低右转
       {
         //return TURN_RIGHT_LOW;
+        quarter_turn = NOPE;
         return TURN_RIGHT_HIGH;
       } else {
         return SLOW_ON;
@@ -141,12 +161,12 @@ void motorControl(void) {
       TARGET_V_RIGHT = base_V * 0.5;
       break;
     case TURN_RIGHT_MID:  // 中右转
-      TARGET_V_LEFT = -base_V * 0.8;
+      TARGET_V_LEFT = -base_V * 0.75;
       TARGET_V_RIGHT = base_V * 0.15;
       break;
-    case TURN_RIGHT_HIGH:  // 直角右转
-      TARGET_V_LEFT = -base_V * 0.8;
-      TARGET_V_RIGHT = 0;
+    case TURN_RIGHT_HIGH:              // 直角右转
+      TARGET_V_LEFT = -base_V * 0.75;  // 0.65
+      TARGET_V_RIGHT = base_V * 0.05;  // 0
       break;
     case REVERSE:  // 倒车
       TARGET_V_LEFT = +base_V * 0.5;
@@ -158,11 +178,11 @@ void motorControl(void) {
       break;
     case TURN_LEFT_MID:  // 中左转
       TARGET_V_LEFT = -base_V * 0.15;
-      TARGET_V_RIGHT = base_V * 0.8;
+      TARGET_V_RIGHT = base_V * 0.75;
       break;
-    case TURN_LEFT_HIGH:  // 直角左转
-      TARGET_V_LEFT = 0;
-      TARGET_V_RIGHT = base_V * 0.8;
+    case TURN_LEFT_HIGH:               // 直角左转
+      TARGET_V_LEFT = -base_V * 0.05;  // 0
+      TARGET_V_RIGHT = base_V * 0.75;  // 0.65
       break;
     case TURN_RIGHT_LOW:  // 低右转
       TARGET_V_LEFT = -base_V * 0.9;

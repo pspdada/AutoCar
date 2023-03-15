@@ -24,7 +24,7 @@ bool isCross = 0;    // 判断是否越线，0代表没有越界，正常读取�
 bool isFinish = 0;   // 判断是否到达终点，0代表没有到达终点，正常寻迹，1代表到达终点
 bool isBarrier = 0;  // 判断是否遇到障碍物
 bool nowDrop = 0;    // 现在放下东西
-bool quarter_turn = 0;
+char quarter_turn = 0;
 // 创建舵机对象
 Servo servo_1;
 Servo servo_2;
@@ -103,8 +103,9 @@ void loop() {
   }
   time_now_l = millis();
   if (time_now_l - time_base_l >= 100) {
-
     time_base_l += 100;
+
+    
     // 给Trig发送一个短时间脉冲,触发测距
     digitalWrite(TRIG_PIN, LOW);                 // 给Trig发送一个低电平
     delayMicroseconds(2);                        // 等待2微妙
@@ -124,8 +125,8 @@ void loop() {
     Serial.print("Output_R:");
     Serial.println(Output_R);
 
-
-    
+*/
+    /*
     Serial.print("cur_V_LEFT:");
     Serial.println(cur_V_LEFT);
     Serial.print("cur_V_RIGHT:");
@@ -158,6 +159,9 @@ void loop() {
     Serial.print(CTRTstate[6][0]);
     Serial.print("\t");
     Serial.print(isCross);
+    Serial.print("\t");
+    Serial.print("quarter_turn:");
+    Serial.print(quarter_turn);
     Serial.print("\n");
 
     /*
