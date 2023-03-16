@@ -46,6 +46,7 @@ uint8_t runMode(void) {
         // return REVERSE;  // 调试用
         // 寻迹用
         isCross = 1;
+        quarter_turn = NOPE;
       } else if (isAllHigh() && isFinish == 0)  // 全为黑线时，到达终点
       {
         // 寻迹用
@@ -97,7 +98,6 @@ uint8_t runMode(void) {
         return TURN_RIGHT_HIGH;
       } else if ((quarter_turn == NOPE) && (!isAllLow())) {
         isCross = 0;
-        quarter_turn = NOPE;
         return SLOW_ON;
       }
       if (CTRTstate[0][1] == HIGH || CTRTstate[0][2] == HIGH)  // 直角左转
@@ -111,22 +111,18 @@ uint8_t runMode(void) {
       } else if (CTRTstate[1][1] == HIGH || CTRTstate[1][2] == HIGH)  // 中左转
       {
         //return TURN_LEFT_MID;
-        quarter_turn = NOPE;
         return TURN_LEFT_HIGH;
       } else if (CTRTstate[5][1] == HIGH || CTRTstate[5][2] == HIGH)  // 中右转
       {
         //return TURN_RIGHT_MID;
-        quarter_turn = NOPE;
         return TURN_RIGHT_HIGH;
       } else if (CTRTstate[2][1] == HIGH || CTRTstate[2][2] == HIGH)  // 低左转
       {
         //return TURN_LEFT_LOW;
-        quarter_turn = NOPE;
         return TURN_LEFT_HIGH;
       } else if (CTRTstate[4][1] == HIGH || CTRTstate[4][2] == HIGH)  // 低右转
       {
         //return TURN_RIGHT_LOW;
-        quarter_turn = NOPE;
         return TURN_RIGHT_HIGH;
       } else {
         return SLOW_ON;
@@ -252,7 +248,7 @@ void carRun(void) {
   }
 }
 
-// 到达终点后，转圈、放下物品
+// 到达终点后，转圈、放下物品 不再需要这个函数
 void turnAroundandDrop() {
   // 关闭所有中断
   MsTimer2::stop();

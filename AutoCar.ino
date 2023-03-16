@@ -20,22 +20,20 @@ unsigned long time_base_f = 0, time_now_f = 0;  // FINISH用于完成寻迹的�
 
 // 将CTRT读取的数据存入二维数组中，实现记忆功能
 bool CTRTstate[CTRT_CNT][MEMORY_CNT];
-bool isCross = 0;    // 判断是否越线，0代表没有越界，正常读取正常输出，1代表越界，进入记忆模式
-bool isFinish = 0;   // 判断是否到达终点，0代表没有到达终点，正常寻迹，1代表到达终点
-bool isBarrier = 0;  // 判断是否遇到障碍物
-bool nowDrop = 0;    // 现在放下东西
-char quarter_turn = 0;
+
+bool isCross = 0;             // 判断是否越线，0代表没有越界，正常读取正常输出，1代表越界，进入记忆模式
+bool isFinish = 0;            // 判断是否到达终点，0代表没有到达终点，正常寻迹，1代表到达终点
+bool isBarrier = 0;           // 判断是否遇到障碍物
+bool nowDrop = 0;             // 现在放下东西
+char quarter_turn = 0;        // 在记忆模式下判断是否需要直角转弯
+volatile bool car_state = 1;  // 按下按钮后改变车的状态
+
 // 创建舵机对象
 Servo servo_1;
 Servo servo_2;
 
 // 变量pwm用来存储舵机角度位置
 unsigned short PWM_1 = 1500, PWM_2 = 2000;
-
-// 按下按钮后改变车的状态
-volatile bool car_state = 1;
-
-
 
 // 定义引脚
 void pinModeInit() {
@@ -84,12 +82,11 @@ void setup() {
   MsTimer2::set(PERIOD, motorControl);  // 计数器：设定每隔PERIOD时间，执行一次motorControl函数
   MsTimer2::start();                    // 启动计时器
   time_base_l = millis();
-  time_base_f = millis();
+  // time_base_f = millis(); // 调试用
   // isFinish = 1;
 }
 
 void loop() {
-
   if (nowDrop) {
     nowDrop == 0;
     MsTimer2::stop();
@@ -104,8 +101,6 @@ void loop() {
   time_now_l = millis();
   if (time_now_l - time_base_l >= 100) {
     time_base_l += 100;
-
-    
     // 给Trig发送一个短时间脉冲,触发测距
     digitalWrite(TRIG_PIN, LOW);                 // 给Trig发送一个低电平
     delayMicroseconds(2);                        // 等待2微妙
@@ -124,8 +119,7 @@ void loop() {
     Serial.println(Output_L);
     Serial.print("Output_R:");
     Serial.println(Output_R);
-
-*/
+    */
     /*
     Serial.print("cur_V_LEFT:");
     Serial.println(cur_V_LEFT);
@@ -163,7 +157,6 @@ void loop() {
     Serial.print("quarter_turn:");
     Serial.print(quarter_turn);
     Serial.print("\n");
-
     /*
     Serial.print(CTRTstate[0][1]);
     Serial.print("\t");
