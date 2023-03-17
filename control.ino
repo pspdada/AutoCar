@@ -8,36 +8,44 @@ uint8_t runMode(void) {
   */
   if (isFinish == 1) {  // 到达终点时
     time_now_f = millis();
-    // 记录：15速时 200 1000 1100 1600 1700
+    // 记录：16速时 200 1000 1100 1800 2000
+    // 记录：20速时 200 800 900 1500 1700
     if (time_now_f - time_base_f <= 200) {
       return _STOP;
-    } else if (time_now_f - time_base_f <= 800) {
+    } else if (time_now_f - time_base_f <= 1000) {
       return CIRCLE;
-    } else if (time_now_f - time_base_f <= 900) {
+    } else if (time_now_f - time_base_f <= 1100) {
       return _STOP;
-    } else if (time_now_f - time_base_f <= 1500) {
+    } else if (time_now_f - time_base_f <= 1800) {
       return REVERSE;
-    } else if (time_now_f - time_base_f <= 1700) {
+    } else if (time_now_f - time_base_f <= 2000) {
       return _STOP;
     } else {
       nowDrop = 1;
+      return _STOP;
     }
   }
+
   if (isBarrier == 1) {  // 发现障碍物时，优先躲避障碍物
     time_now_a = millis();
-    // 记录：15速时 1000 1500 2000 2200
-    if (time_now_a - time_base_a <= 600) {
+    // 记录：16速时 800 1200 1900 2300 2700
+    // 记录：20速时 600 1000 1500 1700
+    if (time_now_a - time_base_a <= 800) {
       return TURN_LEFT_MID;
-    } else if (time_now_a - time_base_a <= 1000) {
-      return TURN_RIGHT_MID;
-    } else if (time_now_a - time_base_a <= 1500) {
+    } else if (time_now_a - time_base_a <= 1200) {
       return STRAIGHT_ON;
-    } else if (time_now_a - time_base_a <= 1700) {
+    } else if (time_now_a - time_base_a <= 1900) {
       return TURN_RIGHT_MID;
+    } else if (time_now_a - time_base_a <= 2300) {
+      return STRAIGHT_ON;
+    } else if (time_now_a - time_base_a <= 2700) {
+      return TURN_LEFT_LOW;
     } else {
       isBarrier = 0;
     }
   }
+
+  if (!isFinish) updateCTRTstate();  // 更新CTRT数据
   while (true) {
     if (isCross == 0) {  // 根据红外传感器的输出来决定运动模式
       if (isAllLow())    // 未检测到黑线时，进入记忆模式
@@ -55,18 +63,18 @@ uint8_t runMode(void) {
         // 调试用
         // turnAroundandDrop();
         return SLOW_ON;
-      } else if (CTRTstate[0][0] == HIGH)  // 直角左转
-      {
-        return TURN_LEFT_HIGH;
       } else if (CTRTstate[6][0] == HIGH)  // 直角右转
       {
         return TURN_RIGHT_HIGH;
-      } else if (CTRTstate[1][0] == HIGH)  // 中左转
-      {
-        return TURN_LEFT_MID;
       } else if (CTRTstate[5][0] == HIGH)  // 中右转
       {
         return TURN_RIGHT_MID;
+      } else if (CTRTstate[0][0] == HIGH)  // 直角左转
+      {
+        return TURN_LEFT_HIGH;
+      } else if (CTRTstate[1][0] == HIGH)  // 中左转
+      {
+        return TURN_LEFT_MID;
       } else if (CTRTstate[2][0] == HIGH)  // 低左转
       {
         return TURN_LEFT_LOW;
@@ -82,23 +90,22 @@ uint8_t runMode(void) {
       }
     }
     if (isCross == 1) {  // 记忆模式
-      /*if (!isAllLow())   // 再次检测到黑线，则退出记忆模式
-      {
-        isCross = 0;
-        return SLOW_ON;
-      } else
-      */
-      if (quarter_turn == QT_L && CTRTstate[0][0] == HIGH) {
+      /*
+      if (quarter_turn == QT_L && (CTRTstate[0][0] == HIGH || CTRTstate[1][0] == HIGH)) {
         isCross = 0;
         quarter_turn = NOPE;
         return TURN_LEFT_HIGH;
-      } else if (quarter_turn == QT_R && CTRTstate[6][0] == HIGH) {
+      } else if (quarter_turn == QT_R && (CTRTstate[6][0] == HIGH || CTRTstate[5][0] == HIGH)) {
         isCross = 0;
         quarter_turn = NOPE;
         return TURN_RIGHT_HIGH;
       } else if ((quarter_turn == NOPE) && (!isAllLow())) {
         isCross = 0;
         return SLOW_ON;
+      }
+      */
+      if (!isAllLow()) {  // 再次检测到黑线，则退出记忆模式
+        isCross = 0;
       }
       if (CTRTstate[0][1] == HIGH || CTRTstate[0][2] == HIGH)  // 直角左转
       {
@@ -160,9 +167,9 @@ void motorControl(void) {
       TARGET_V_LEFT = -base_V * 0.75;
       TARGET_V_RIGHT = base_V * 0.15;
       break;
-    case TURN_RIGHT_HIGH:              // 直角右转
-      TARGET_V_LEFT = -base_V * 0.75;  // 0.65
-      TARGET_V_RIGHT = base_V * 0.05;  // 0
+    case TURN_RIGHT_HIGH:       // 直角右转
+      TARGET_V_LEFT = -base_V;  // 0.65
+      TARGET_V_RIGHT = 0;       //-base_V * 0.15;  // 0
       break;
     case REVERSE:  // 倒车
       TARGET_V_LEFT = +base_V * 0.5;
@@ -176,9 +183,9 @@ void motorControl(void) {
       TARGET_V_LEFT = -base_V * 0.15;
       TARGET_V_RIGHT = base_V * 0.75;
       break;
-    case TURN_LEFT_HIGH:               // 直角左转
-      TARGET_V_LEFT = -base_V * 0.05;  // 0
-      TARGET_V_RIGHT = base_V * 0.75;  // 0.65
+    case TURN_LEFT_HIGH:        // 直角左转
+      TARGET_V_LEFT = 0;        // +base_V * 0.15;  // 0
+      TARGET_V_RIGHT = base_V;  // 0.65
       break;
     case TURN_RIGHT_LOW:  // 低右转
       TARGET_V_LEFT = -base_V * 0.9;
@@ -268,7 +275,6 @@ void turnAroundandDrop() {
     cur_time = millis();
   }
   init_time = cur_time;
-  /*
   // 再往后稍微走一点点 // 注意改方向
   digitalWrite(IN_L1, LOW);
   digitalWrite(IN_L2, HIGH);
@@ -279,7 +285,6 @@ void turnAroundandDrop() {
   while (cur_time - init_time <= 200) {
     cur_time = millis();
   }
-  */
   // 电机停止
   analogWrite(PWM_LEFT, 0);
   analogWrite(PWM_RIGHT, 0);

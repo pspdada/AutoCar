@@ -5,7 +5,7 @@
 #include <Servo.h>     // 调用Servo.h库
 #include <math.h>
 
-#define base_V 20.0  // 基础速度，实力的象征
+#define base_V 16.0  // 基础速度，实力的象征
 #define PERIOD 10    // 周期
 #define PI 3.14159
 
@@ -34,7 +34,7 @@
 // 2个舵机
 #define SERVO_CNT 2
 #define SERVO_1 13  // 底部舵机 可用范围：1500-2500 增大时向后放倒，1500初始竖直位置，2500水平位置
-#define SERVO_2 7   // 顶部舵机 可用范围：1500-2000 增大时夹紧，1500初始位置，2000夹紧位置
+#define SERVO_2 7   // 顶部舵机 可用范围：1000-1550 增大时夹紧，1000初始位置，1550夹紧位置
 
 // 测距模块
 #define TRIG_PIN 26  // 引脚Trig触发控制信号输入

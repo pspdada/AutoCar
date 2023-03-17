@@ -21,19 +21,19 @@ unsigned long time_base_f = 0, time_now_f = 0;  // FINISH用于完成寻迹的�
 // 将CTRT读取的数据存入二维数组中，实现记忆功能
 bool CTRTstate[CTRT_CNT][MEMORY_CNT];
 
-bool isCross = 0;             // 判断是否越线，0代表没有越界，正常读取正常输出，1代表越界，进入记忆模式
-bool isFinish = 0;            // 判断是否到达终点，0代表没有到达终点，正常寻迹，1代表到达终点
-bool isBarrier = 0;           // 判断是否遇到障碍物
-bool nowDrop = 0;             // 现在放下东西
-char quarter_turn = 0;        // 在记忆模式下判断是否需要直角转弯
-volatile bool car_state = 1;  // 按下按钮后改变车的状态
+bool isCross = 0;                // 判断是否越线，0代表没有越界，正常读取正常输出，1代表越界，进入记忆模式
+bool isFinish = 0;               // 判断是否到达终点，0代表没有到达终点，正常寻迹，1代表到达终点
+bool isBarrier = 0;              // 判断是否遇到障碍物
+bool nowDrop = 0;                // 现在放下东西
+volatile char quarter_turn = 0;  // 在记忆模式下判断是否需要直角转弯
+volatile bool car_state = 1;     // 按下按钮后改变车的状态
 
 // 创建舵机对象
 Servo servo_1;
 Servo servo_2;
 
 // 变量pwm用来存储舵机角度位置
-unsigned short PWM_1 = 1500, PWM_2 = 2000;
+unsigned short PWM_1 = 1500, PWM_2 = 1000;
 
 // 定义引脚
 void pinModeInit() {
@@ -63,13 +63,12 @@ void pinModeInit() {
 void setup() {
   pinModeInit();
   TCCR1B = TCCR1B & B11111000 | B00000001;                                  // 9,10 两个管脚的 PWM 由定时器 TIMER1 产生，这句程序改变 PWM 的频率
-  attachInterrupt(digitalPinToInterrupt(2), getEncoder_L, CHANGE);          // 设置2引脚为中断
-  attachInterrupt(digitalPinToInterrupt(3), getEncoder_R, CHANGE);          // 设置3引脚为中断
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonPress, RISING);  // 设置21引脚为中断 // 剩余可用于中断的引脚：18 19 20
+  while (car_state != 0) {}
+  attachInterrupt(digitalPinToInterrupt(2), getEncoder_L, CHANGE);  // 设置2引脚为中断
+  attachInterrupt(digitalPinToInterrupt(3), getEncoder_R, CHANGE);  // 设置3引脚为中断
   Serial.begin(9600);
   memset(CTRTstate, 0, sizeof(bool) * CTRT_CNT * MEMORY_CNT);
-  while (car_state != 0) {}
-
   // 舵机初始化
   servo_1.attach(SERVO_1);  // 将20引脚与声明的舵机对象连接起来
   servo_2.attach(SERVO_2);  // 将21引脚与声明的舵机对象连接起来
@@ -96,7 +95,10 @@ void loop() {
     analogWrite(PWM_LEFT, 0);
     analogWrite(PWM_RIGHT, 0);
     servoDrop();
-    while (true) {}
+    while (true) {
+      analogWrite(PWM_LEFT, 0);
+      analogWrite(PWM_RIGHT, 0);
+    }
   }
   time_now_l = millis();
   if (time_now_l - time_base_l >= 100) {
@@ -137,6 +139,8 @@ void loop() {
     /*
     Serial.print("distance:");
     Serial.println(distance);
+    Serial.print("isBarrier:");
+    Serial.println(isBarrier);
     */
     Serial.print(CTRTstate[0][0]);
     Serial.print("\t");
@@ -153,10 +157,10 @@ void loop() {
     Serial.print(CTRTstate[6][0]);
     Serial.print("\t");
     Serial.print(isCross);
-    Serial.print("\t");
-    Serial.print("quarter_turn:");
-    Serial.print(quarter_turn);
     Serial.print("\n");
+    /*
+    Serial.print("quarter_turn:");
+    Serial.println(quarter_turn);
     /*
     Serial.print(CTRTstate[0][1]);
     Serial.print("\t");

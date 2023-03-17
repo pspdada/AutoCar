@@ -2,21 +2,23 @@
 
 /*-----------------------------------机械臂相关-------------------------------------*/
 void servoGrap() {
-  for (PWM_2 = 2000; PWM_2 > 1500; PWM_2 -= 10) {  // 松开爪子
+ /*
+  for (PWM_2 = 2000; PWM_2 > 1500; PWM_2 -= 20) {  // 松开爪子
     servo_2.writeMicroseconds(PWM_2);              // 给舵机写入PWM
     delay(5);
   }
   delay(100);
+  */
   for (PWM_1 = 1500; PWM_1 < 2500; PWM_1 += 10) {  // 放倒机械臂
     servo_1.writeMicroseconds(PWM_1);              // 给舵机写入PWM
     delay(5);
   }
   delay(100);
-  for (PWM_2 = 1500; PWM_2 < 1960; PWM_2 += 10) {  // 夹紧爪子
+  for (PWM_2 = 1000; PWM_2 < 1550; PWM_2 += 10) {  // 夹紧爪子
     servo_2.writeMicroseconds(PWM_2);              // 给舵机写入PWM
     delay(5);
   }
-  delay(100);
+  delay(50);
   for (PWM_1 = 2500; PWM_1 > 1600; PWM_1 -= 10) {  // 立起机械臂
     servo_1.writeMicroseconds(PWM_1);              // 给舵机写入PWM
     delay(5);
@@ -29,18 +31,20 @@ void servoDrop() {
     delay(5);
   }
   delay(200);
-  for (PWM_2 = 1960; PWM_2 > 1500; PWM_2 -= 10) {  // 松开爪子
+  for (PWM_2 = 1550; PWM_2 > 1000; PWM_2 -= 10) {  // 松开爪子
     servo_2.writeMicroseconds(PWM_2);              // 给舵机写入PWM
     delay(5);
   }
-  delay(100);
-  for (PWM_1 = 2500; PWM_1 > 1500; PWM_1 -= 10) {  // 立起机械臂
+  delay(50);
+  for (PWM_1 = 2500; PWM_1 > 1500; PWM_1 -= 20) {  // 立起机械臂
     servo_1.writeMicroseconds(PWM_1);              // 给舵机写入PWM
-    delay(5);
+    delay(2);
   }
-  delay(100);
-  for (PWM_2 = 1500; PWM_2 < 2000; PWM_2 += 10) {  // 夹紧爪子
+  delay(50);
+  /*
+  for (PWM_2 = 1500; PWM_2 < 2000; PWM_2 += 20) {  // 夹紧爪子
     servo_2.writeMicroseconds(PWM_2);              // 给舵机写入PWM
-    delay(5);
+    delay(2);
   }
+  */
 }
