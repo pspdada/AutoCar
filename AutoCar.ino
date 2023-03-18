@@ -9,9 +9,9 @@ float cur_V_LEFT = 0;                             // 左轮实际转速
 float cur_V_RIGHT = 0;                            // 右轮实际转速
 short T = PERIOD;                                 // 周期
 short Output_R = 0, Output_L = 0;
-
-float u_L = 0, LEFT_eI = 0, LEFT_eII = 0, LEFT_eIII = 0;  // 输出量u、e(k)、e(k-1)、e(k-2)
-float u_R = 0, RIGHT_eI = 0, RIGHT_eII = 0, RIGHT_eIII = 0;
+// pid输出量u、偏差e(k)、e(k-1)、e(k-2)
+float u_L = 0, LEFT_eI = 0, LEFT_eII = 0, LEFT_eIII = 0;     // 左轮
+float u_R = 0, RIGHT_eI = 0, RIGHT_eII = 0, RIGHT_eIII = 0;  // 右轮
 
 float temp_time, distance;                      // 超声波模块读出来的距离
 unsigned long time_base_l = 0, time_now_l = 0;  // LOOP用于loop循环的时间
@@ -64,11 +64,12 @@ void setup() {
   pinModeInit();
   TCCR1B = TCCR1B & B11111000 | B00000001;                                  // 9,10 两个管脚的 PWM 由定时器 TIMER1 产生，这句程序改变 PWM 的频率
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonPress, RISING);  // 设置21引脚为中断 // 剩余可用于中断的引脚：18 19 20
+  Serial.begin(9600);
+  memset(CTRTstate, 0, sizeof(bool) * CTRT_CNT * MEMORY_CNT);
   while (car_state != 0) {}
   attachInterrupt(digitalPinToInterrupt(2), getEncoder_L, CHANGE);  // 设置2引脚为中断
   attachInterrupt(digitalPinToInterrupt(3), getEncoder_R, CHANGE);  // 设置3引脚为中断
-  Serial.begin(9600);
-  memset(CTRTstate, 0, sizeof(bool) * CTRT_CNT * MEMORY_CNT);
+
   // 舵机初始化
   servo_1.attach(SERVO_1);  // 将20引脚与声明的舵机对象连接起来
   servo_2.attach(SERVO_2);  // 将21引脚与声明的舵机对象连接起来
@@ -121,8 +122,7 @@ void loop() {
     Serial.println(Output_L);
     Serial.print("Output_R:");
     Serial.println(Output_R);
-    */
-    /*
+    
     Serial.print("cur_V_LEFT:");
     Serial.println(cur_V_LEFT);
     Serial.print("cur_V_RIGHT:");
@@ -132,10 +132,10 @@ void loop() {
     Serial.print("TARGET_V_RIGHT:");
     Serial.println(TARGET_V_RIGHT);
     Serial.print("\n");
-    /*
+    
     Serial.print("car_state:");
     Serial.println(digitalRead(car_state));
-    */
+    /*
     /*
     Serial.print("distance:");
     Serial.println(distance);

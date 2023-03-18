@@ -23,18 +23,18 @@
 
 // 7个光电寻迹模块
 #define CTRT_CNT 7
-#define CTRT_PIN_L3 30  //左红外
+#define CTRT_PIN_L3 30  // 左红外
 #define CTRT_PIN_L2 24
 #define CTRT_PIN_L1 16
-#define CTRT_PIN_M 17   //中红外
-#define CTRT_PIN_R1 18  //右红外
+#define CTRT_PIN_M 17   // 中红外
+#define CTRT_PIN_R1 18  // 右红外
 #define CTRT_PIN_R2 19
 #define CTRT_PIN_R3 20
 
 // 2个舵机
 #define SERVO_CNT 2
 #define SERVO_1 13  // 底部舵机 可用范围：1500-2500 增大时向后放倒，1500初始竖直位置，2500水平位置
-#define SERVO_2 7   // 顶部舵机 可用范围：1000-1550 增大时夹紧，1000初始位置，1550夹紧位置
+#define SERVO_2 7   // 顶部舵机 可用范围：1000-1500 增大时夹紧，1000初始位置，1500夹紧位置
 
 // 测距模块
 #define TRIG_PIN 26  // 引脚Trig触发控制信号输入
@@ -51,19 +51,21 @@
 #define Ki_R 20.0
 #define Kd_R 0.05
 
-#define MEMORY_CNT 3  // CTRT的记忆层数
+#define MEMORY_CNT 4  // CTRT的记忆层数
 
 /*---------------------------------数据类型------------------------------*/
 typedef enum run_mode_e {
-  _STOP = 0,       // 停转
-  SLOW_ON,         // 低速前进
-  STRAIGHT_ON,     // 全速直行
-  TURN_LEFT_LOW,   // 低左转
-  TURN_LEFT_MID,   // 中左转
-  TURN_LEFT_HIGH,  // 直角左转
+  _STOP = 0,         // 停转
+  SLOW_ON,           // 低速前进
+  STRAIGHT_ON,       // 全速直行
+  TURN_LEFT_LOW,     // 低左转
+  TURN_LEFT_MID,     // 中左转
+  TURN_LEFT_HIGH,    // 直角左转
+  TURN_LEFT_HIGH_F,  // 直角左转_快速
   TURN_RIGHT_LOW,
   TURN_RIGHT_MID,
   TURN_RIGHT_HIGH,
+  TURN_RIGHT_HIGH_F,
   REVERSE,  // 倒车
   CIRCLE    // 转圈
 } run_mode;

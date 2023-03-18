@@ -14,7 +14,7 @@ void servoGrap() {
     delay(5);
   }
   delay(100);
-  for (PWM_2 = 1000; PWM_2 < 1550; PWM_2 += 10) {  // 夹紧爪子
+  for (PWM_2 = 1000; PWM_2 < 1500; PWM_2 += 10) {  // 夹紧爪子
     servo_2.writeMicroseconds(PWM_2);              // 给舵机写入PWM
     delay(5);
   }
