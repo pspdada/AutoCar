@@ -32,6 +32,7 @@
 #define CTRT_PIN_R3 20
 
 // 2个舵机
+// 由于机械原因，机械臂的参数可能会变，需要及时调整
 #define SERVO_CNT 2
 #define SERVO_1 13  // 底部舵机 可用范围：1500-2500 增大时向后放倒，1500初始竖直位置，2500水平位置
 #define SERVO_2 7   // 顶部舵机 可用范围：1000-1500 增大时夹紧，1000初始位置，1500夹紧位置
@@ -70,6 +71,7 @@ typedef enum run_mode_e {
   CIRCLE    // 转圈
 } run_mode;
 
+// 判断是否需要直角转弯
 enum quarter_turn_e {
   NOPE = 0,
   QT_L,  // 直角左转

@@ -7,6 +7,6 @@
 void motorControl(void);
 uint8_t runMode(void);
 void carRun(void);
-void turnAroundandDrop();
 void buttonPress();
+
 #endif

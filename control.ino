@@ -8,7 +8,7 @@ uint8_t runMode(void) {
   Serial.print("\t");
   */
 
-  if (isFinish == 1) {  // 到达终点时
+  if (isFinish == 1) {  // 到达终点时，执行最后的动作(开环控制)
     time_now_f = millis();
     // 记录：16速时 200 1000 1100 1800 2000
     // 记录：20速时 200 800 900 1500 1700
@@ -27,11 +27,10 @@ uint8_t runMode(void) {
       return _STOP;
     }
   }
-  if (isBarrier == 1) {  // 发现障碍物时，优先躲避障碍物
+  if (isBarrier == 1) {  // 发现障碍物时，优先躲避障碍物(开环控制)
     time_now_a = millis();
-    // 记录：16速时雪糕桶15cm 800 1300 2000 2400 2800
-    // 记录：16速时水壶15cm 700 1100 1700 2100 2800
-    // 记录：20速时 600 1000 1500 1700
+    // 记录：16速时 雪糕桶15cm 800 1300 2000 2400 2800
+    // 记录：16速时 水壶15cm 700 1100 1700 2100 2800
     if (time_now_a - time_base_a <= 700) {
       return TURN_LEFT_MID;
     } else if (time_now_a - time_base_a <= 1100) {
@@ -49,7 +48,6 @@ uint8_t runMode(void) {
       isBarrier = 0;
     }
   }
-  
 
   while (true) {
     if (isCross == 0) {  // 根据红外传感器的输出来决定运动模式
@@ -95,7 +93,7 @@ uint8_t runMode(void) {
       }
     }
     if (isCross == 1) {  // 记忆模式
-      /*
+      /* // 效果不好
       if (quarter_turn == QT_L && (CTRTstate[0][0] == HIGH || CTRTstate[1][0] == HIGH)) {
         isCross = 0;
         quarter_turn = NOPE;
@@ -172,13 +170,13 @@ void motorControl(void) {
       TARGET_V_LEFT = -base_V * 0.75;
       TARGET_V_RIGHT = base_V * 0.15;
       break;
-    case TURN_RIGHT_HIGH:       // 直角右转
-      TARGET_V_LEFT = -base_V;  // 0.65
-      TARGET_V_RIGHT = 0;       //-base_V * 0.15;
+    case TURN_RIGHT_HIGH:  // 直角右转
+      TARGET_V_LEFT = -base_V;
+      TARGET_V_RIGHT = 0;
       break;
-    case TURN_RIGHT_HIGH_F:           // 直角右转
-      TARGET_V_LEFT = -base_V * 1.5;  // 0.65
-      TARGET_V_RIGHT = 0;             //-base_V * 0.15;
+    case TURN_RIGHT_HIGH_F:  // 直角右转
+      TARGET_V_LEFT = -base_V * 1.5;
+      TARGET_V_RIGHT = 0;
       break;
     case REVERSE:  // 倒车
       TARGET_V_LEFT = +base_V * 0.5;
@@ -192,16 +190,16 @@ void motorControl(void) {
       TARGET_V_LEFT = -base_V * 0.15;
       TARGET_V_RIGHT = base_V * 0.75;
       break;
-    case TURN_LEFT_HIGH:        // 直角左转
-      TARGET_V_LEFT = 0;        // +base_V * 0.15;
-      TARGET_V_RIGHT = base_V;  // 0.65
+    case TURN_LEFT_HIGH:  // 直角左转
+      TARGET_V_LEFT = 0;
+      TARGET_V_RIGHT = base_V;
       break;
-    case TURN_LEFT_HIGH_F:            // 直角左转
-      TARGET_V_LEFT = 0;              // +base_V * 0.15;
-      TARGET_V_RIGHT = base_V * 1.5;  // 0.65
+    case TURN_LEFT_HIGH_F:  // 直角左转_快速
+      TARGET_V_LEFT = 0;
+      TARGET_V_RIGHT = base_V * 1.5;
       break;
-    case TURN_RIGHT_LOW:               // 低右转
-      TARGET_V_LEFT = -base_V * 0.85;  // 0.9
+    case TURN_RIGHT_LOW:  // 低右转
+      TARGET_V_LEFT = -base_V * 0.85;
       TARGET_V_RIGHT = base_V * 0.5;
       break;
     case CIRCLE:  // 转圈
@@ -266,57 +264,6 @@ void carRun(void) {
       analogWrite(PWM_RIGHT, abs(Output_R));
     }
   }
-}
-
-// 到达终点后，转圈、放下物品 不再需要这个函数
-void turnAroundandDrop() {
-  // 关闭所有中断
-  MsTimer2::stop();
-  detachInterrupt(digitalPinToInterrupt(2));
-  detachInterrupt(digitalPinToInterrupt(3));
-  detachInterrupt(digitalPinToInterrupt(BUTTON_PIN));
-  // 记录当前时间
-  unsigned long init_time = millis(), cur_time = millis() + 1;
-  // 刚好能转半圈的数据
-  digitalWrite(IN_L1, LOW);
-  digitalWrite(IN_L2, HIGH);
-  analogWrite(PWM_LEFT, 140);
-  digitalWrite(IN_R1, LOW);
-  digitalWrite(IN_R2, HIGH);
-  analogWrite(PWM_RIGHT, 200);
-  while (cur_time - init_time <= 2000) {
-    cur_time = millis();
-  }
-  init_time = cur_time;
-  // 再往后稍微走一点点 // 注意改方向
-  digitalWrite(IN_L1, LOW);
-  digitalWrite(IN_L2, HIGH);
-  analogWrite(PWM_LEFT, 160);
-  digitalWrite(IN_R1, LOW);
-  digitalWrite(IN_R2, HIGH);
-  analogWrite(PWM_RIGHT, 200);
-  while (cur_time - init_time <= 200) {
-    cur_time = millis();
-  }
-  // 电机停止
-  analogWrite(PWM_LEFT, 0);
-  analogWrite(PWM_RIGHT, 0);
-  digitalWrite(IN_L1, HIGH);
-  digitalWrite(IN_L2, HIGH);
-  digitalWrite(IN_R1, HIGH);
-  digitalWrite(IN_R2, HIGH);
-  delay(500);
-  // 放下物品
-  servoDrop();
-  // 死循环
-  while (1) {
-    analogWrite(PWM_LEFT, 0);
-    analogWrite(PWM_RIGHT, 0);
-    digitalWrite(IN_L1, HIGH);
-    digitalWrite(IN_L2, HIGH);
-    digitalWrite(IN_R1, HIGH);
-    digitalWrite(IN_R2, HIGH);
-  };
 }
 
 void buttonPress() {

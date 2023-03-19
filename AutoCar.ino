@@ -63,27 +63,27 @@ void pinModeInit() {
 void setup() {
   pinModeInit();
   TCCR1B = TCCR1B & B11111000 | B00000001;                                  // 9,10 两个管脚的 PWM 由定时器 TIMER1 产生，这句程序改变 PWM 的频率
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonPress, RISING);  // 设置21引脚为中断 // 剩余可用于中断的引脚：18 19 20
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonPress, RISING);  // 设置21引脚为中断
   Serial.begin(9600);
   memset(CTRTstate, 0, sizeof(bool) * CTRT_CNT * MEMORY_CNT);
-  while (car_state != 0) {}
+  while (car_state != 0) {}  // 等待按下按钮
+
   attachInterrupt(digitalPinToInterrupt(2), getEncoder_L, CHANGE);  // 设置2引脚为中断
   attachInterrupt(digitalPinToInterrupt(3), getEncoder_R, CHANGE);  // 设置3引脚为中断
 
+  // 剩余可用于中断的引脚：18 19 20
+
   // 舵机初始化
-  servo_1.attach(SERVO_1);  // 将20引脚与声明的舵机对象连接起来
-  servo_2.attach(SERVO_2);  // 将21引脚与声明的舵机对象连接起来
+  servo_1.attach(SERVO_1);  // 将引脚与声明的舵机对象连接起来
+  servo_2.attach(SERVO_2);
   servo_1.writeMicroseconds(PWM_1);
   servo_2.writeMicroseconds(PWM_2);
   delay(500);
   servoGrap();
   delay(500);
-  // turnAroundandDrop(); // 调试用
   MsTimer2::set(PERIOD, motorControl);  // 计数器：设定每隔PERIOD时间，执行一次motorControl函数
   MsTimer2::start();                    // 启动计时器
   time_base_l = millis();
-  // time_base_f = millis(); // 调试用
-  // isFinish = 1;
 }
 
 void loop() {
@@ -118,6 +118,7 @@ void loop() {
     }
 
     /*
+    // 用于调试，打印数据
     Serial.print("Output_L:");
     Serial.println(Output_L);
     Serial.print("Output_R:");
@@ -135,13 +136,12 @@ void loop() {
     
     Serial.print("car_state:");
     Serial.println(digitalRead(car_state));
-    /*
-    /*
+    
     Serial.print("distance:");
     Serial.println(distance);
     Serial.print("isBarrier:");
     Serial.println(isBarrier);
-    */
+    
     Serial.print(CTRTstate[0][0]);
     Serial.print("\t");
     Serial.print(CTRTstate[1][0]);
@@ -158,10 +158,10 @@ void loop() {
     Serial.print("\t");
     Serial.print(isCross);
     Serial.print("\n");
-    /*
+    
     Serial.print("quarter_turn:");
     Serial.println(quarter_turn);
-    /*
+
     Serial.print(CTRTstate[0][1]);
     Serial.print("\t");
     Serial.print(CTRTstate[1][1]);
