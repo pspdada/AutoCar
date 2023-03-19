@@ -1,4 +1,3 @@
-// 220320726 彭尚品 220320723 黄艺洋
 #include "AutoCar_def.h"
 //------------------------------------------全局变量--------------------------------------------*/
 float TARGET_V_LEFT = 0, f_V_L = 0, ff_V_L = 0;   // 左轮目标速度 当前、上一时刻、上上时刻
@@ -32,7 +31,7 @@ volatile bool car_state = 1;     // 按下按钮后改变车的状态
 Servo servo_1;
 Servo servo_2;
 
-// 变量pwm用来存储舵机角度位置
+// 存储舵机角度位置，1底部 2顶部
 unsigned short PWM_1 = 1500, PWM_2 = 1000;
 
 // 定义引脚
@@ -80,13 +79,14 @@ void setup() {
   servo_2.writeMicroseconds(PWM_2);
   delay(500);
   servoGrap();
-  delay(500);
+  delay(200);
   MsTimer2::set(PERIOD, motorControl);  // 计数器：设定每隔PERIOD时间，执行一次motorControl函数
   MsTimer2::start();                    // 启动计时器
   time_base_l = millis();
 }
 
 void loop() {
+  // 程序的最后一步，在转完半圈后执行
   if (nowDrop) {
     nowDrop == 0;
     MsTimer2::stop();
@@ -101,7 +101,9 @@ void loop() {
       analogWrite(PWM_RIGHT, 0);
     }
   }
+
   time_now_l = millis();
+  // 每100ms执行一次
   if (time_now_l - time_base_l >= 100) {
     time_base_l += 100;
     // 给Trig发送一个短时间脉冲,触发测距
@@ -116,9 +118,9 @@ void loop() {
       time_base_a = millis();
       isBarrier = 1;
     }
-
-    /*
+    
     // 用于调试，打印数据
+    /*
     Serial.print("Output_L:");
     Serial.println(Output_L);
     Serial.print("Output_R:");
